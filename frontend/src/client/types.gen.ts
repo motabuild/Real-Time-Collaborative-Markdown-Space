@@ -9,6 +9,24 @@ export type Body_login_login_access_token = {
     client_secret?: (string | null);
 };
 
+export type DocumentCreate = {
+    title?: string;
+    content?: string;
+};
+
+export type DocumentOut = {
+    title?: string;
+    content?: string;
+    id: string;
+    created_at?: (string | null);
+    updated_at?: (string | null);
+};
+
+export type DocumentUpdate = {
+    title?: (string | null);
+    content?: (string | null);
+};
+
 export type HTTPValidationError = {
     detail?: Array<ValidationError>;
 };
@@ -112,6 +130,25 @@ export type ValidationError = {
         [key: string]: unknown;
     };
 };
+
+export type DocumentsCreateDocumentData = {
+    requestBody: DocumentCreate;
+};
+
+export type DocumentsCreateDocumentResponse = (DocumentOut);
+
+export type DocumentsReadDocumentData = {
+    documentId: string;
+};
+
+export type DocumentsReadDocumentResponse = (DocumentOut);
+
+export type DocumentsUpdateDocumentData = {
+    documentId: string;
+    requestBody: DocumentUpdate;
+};
+
+export type DocumentsUpdateDocumentResponse = (DocumentOut);
 
 export type ItemsReadItemsData = {
     limit?: number;

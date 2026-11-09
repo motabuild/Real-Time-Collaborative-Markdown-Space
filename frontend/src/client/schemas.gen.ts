@@ -57,6 +57,99 @@ export const Body_login_login_access_tokenSchema = {
     title: 'Body_login-login_access_token'
 } as const;
 
+export const DocumentCreateSchema = {
+    properties: {
+        title: {
+            type: 'string',
+            title: 'Title',
+            default: 'Untitled'
+        },
+        content: {
+            type: 'string',
+            title: 'Content',
+            default: ''
+        }
+    },
+    type: 'object',
+    title: 'DocumentCreate'
+} as const;
+
+export const DocumentOutSchema = {
+    properties: {
+        title: {
+            type: 'string',
+            title: 'Title',
+            default: 'Untitled'
+        },
+        content: {
+            type: 'string',
+            title: 'Content',
+            default: ''
+        },
+        id: {
+            type: 'string',
+            format: 'uuid',
+            title: 'Id'
+        },
+        created_at: {
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'date-time'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Created At'
+        },
+        updated_at: {
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'date-time'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Updated At'
+        }
+    },
+    type: 'object',
+    required: ['id'],
+    title: 'DocumentOut'
+} as const;
+
+export const DocumentUpdateSchema = {
+    properties: {
+        title: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Title'
+        },
+        content: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Content'
+        }
+    },
+    type: 'object',
+    title: 'DocumentUpdate'
+} as const;
+
 export const HTTPValidationErrorSchema = {
     properties: {
         detail: {
