@@ -112,6 +112,43 @@ class ItemsPublic(SQLModel):
     count: int
 
 
+# Shared properties
+class DocumentBase(SQLModel):
+    title: str = Field(default="Untitled")
+    content: str = Field(default="")
+
+
+# Properties to receive on document creation
+class DocumentCreate(DocumentBase):
+    pass
+
+
+# Properties to receive on document update
+class DocumentUpdate(SQLModel):
+    title: str | None = None
+    content: str | None = None
+
+
+# Database model, database table inferred from class name
+class Document(DocumentBase, table=True):
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    created_at: datetime | None = Field(
+        default_factory=get_datetime_utc,
+        sa_type=DateTime(timezone=True),  # type: ignore
+    )
+    updated_at: datetime | None = Field(
+        default_factory=get_datetime_utc,
+        sa_type=DateTime(timezone=True),  # type: ignore
+    )
+
+
+# Properties to return via API, id is always required
+class DocumentOut(DocumentBase):
+    id: uuid.UUID
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
+
+
 # Generic message
 class Message(SQLModel):
     message: str

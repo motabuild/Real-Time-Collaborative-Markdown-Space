@@ -4,7 +4,17 @@ from typing import Any
 from sqlmodel import Session, select
 
 from app.core.security import get_password_hash, verify_password
-from app.models import Item, ItemCreate, User, UserCreate, UserUpdate
+from app.models import (
+    Document,
+    DocumentCreate,
+    DocumentUpdate,
+    Item,
+    ItemCreate,
+    User,
+    UserCreate,
+    UserUpdate,
+    get_datetime_utc,
+)
 
 
 def create_user(*, session: Session, user_create: UserCreate) -> User:
@@ -66,3 +76,28 @@ def create_item(*, session: Session, item_in: ItemCreate, owner_id: uuid.UUID) -
     session.commit()
     session.refresh(db_item)
     return db_item
+
+
+def create_document(*, session: Session, document_in: DocumentCreate) -> Document:
+    db_document = Document.model_validate(document_in)
+    session.add(db_document)
+    session.commit()
+    session.refresh(db_document)
+    return db_document
+
+
+def get_document(*, session: Session, document_id: uuid.UUID) -> Document | None:
+    return session.get(Document, document_id)
+
+
+def update_document(
+    *, session: Session, db_document: Document, document_in: DocumentUpdate
+) -> Document:
+    update_dict = document_in.model_dump(exclude_unset=True)
+    if update_dict:
+        update_dict["updated_at"] = get_datetime_utc()
+    db_document.sqlmodel_update(update_dict)
+    session.add(db_document)
+    session.commit()
+    session.refresh(db_document)
+    return db_document
