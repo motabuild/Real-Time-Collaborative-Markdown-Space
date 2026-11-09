@@ -1,8 +1,21 @@
-# Full Stack FastAPI Template
+# MotaBuild Labs // Real-Time Collaborative Markdown Space
 
-<a href="https://github.com/fastapi/full-stack-fastapi-template/actions?query=workflow%3A%22Test+Docker+Compose%22" target="_blank"><img src="https://github.com/fastapi/full-stack-fastapi-template/workflows/Test%20Docker%20Compose/badge.svg" alt="Test Docker Compose"></a>
-<a href="https://github.com/fastapi/full-stack-fastapi-template/actions?query=workflow%3A%22Test+Backend%22" target="_blank"><img src="https://github.com/fastapi/full-stack-fastapi-template/workflows/Test%20Backend/badge.svg" alt="Test Backend"></a>
-<a href="https://coverage-badge.samuelcolvin.workers.dev/redirect/fastapi/full-stack-fastapi-template" target="_blank"><img src="https://coverage-badge.samuelcolvin.workers.dev/fastapi/full-stack-fastapi-template.svg" alt="Coverage"></a>
+> **Engineering showcase:** an enterprise-grade demonstration of high-frequency concurrency, ultra-low latency state synchronization, and production-ready full-stack architecture.
+
+## The Vision & Architecture
+
+MotaBuild Labs is a reference implementation for teams that treat **real-time collaboration as a first-class engineering problem**, not a plugin.
+
+The architecture pairs a **FastAPI backend** driving **WebSockets** for bi-directional delta broadcast with a **React frontend** rendering every keystroke instantly — no polling, no refresh, no perceptible lag. The result is a collaborative markdown workspace where document state converges across clients in milliseconds, and every socket frame is observable in real time.
+
+This repository exists to be **read as much as it is run**: clean separation of concerns, typed contracts end to end, generated API clients, containerized from day one, and documentation that assumes you intend to operate it.
+
+## Key Capabilities
+
+- ⚡ **Real-Time Dual-Channel WebSockets Sync** — concurrent editors exchange document deltas over dedicated WebSocket channels, keeping markdown state consistent across every connected peer with sub-frame latency.
+- 🖥️ **Live Server Telemetry & Socket Logs (The Flex Panel)** — an always-visible terminal surface streaming connection events, broadcast deltas, vector clock updates, and latency metrics directly from the sync layer. Observability is built into the product, not bolted onto it.
+- 💾 **Persistent Document Storage via PostgreSQL & SQLModel** — documents are durable database entities with typed schema, explicit models, and versioned Alembic migrations. Collaboration survives reconnects, restarts, and redeploys.
+- 🎨 **Cybernetic Dark-Mode UI built with Tailwind & shadcn/ui** — a high-contrast, cyan-accented interface with monospace telemetry typography, collapsible navigation, and accessible component primitives. Designed to look as precise as the system underneath it.
 
 ## Technology Stack and Features
 
