@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-zinc-950">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MotaBuild Labs — Real-Time Collaborative Markdown Space</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Fonts: Inter & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+            mono: ['JetBrains Mono', 'Fira Code', 'monospace'],
+          },
+          colors: {
+            brand: {
+              cyan: '#06b6d4',
+              teal: '#2dd4bf',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Custom Scrollbar for sleek cybernetic look */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(10, 10, 12, 0.6);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(39, 39, 42, 0.8);
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(6, 182, 212, 0.4);
+    }
+
+    /* Terminal scanline effect subtle overlay */
+    .terminal-glow {
+      box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.05), 0 -4px 20px -2px rgba(6, 182, 212, 0.08);
+    }
+
+    /* Markdown basic prose styles */
+    .markdown-body h1 {
+      font-size: 1.85rem;
+      font-weight: 700;
+      color: #f4f4f5;
+      margin-bottom: 0.75rem;
+      border-bottom: 1px solid rgba(63, 63, 70, 0.4);
+      padding-bottom: 0.4rem;
+      letter-spacing: -0.02em;
+    }
+    .markdown-body h2 {
+      font-size: 1.4rem;
+      font-weight: 600;
+      color: #e4e4e7;
+      margin-top: 1.25rem;
+      margin-bottom: 0.5rem;
+      letter-spacing: -0.01em;
+    }
+    .markdown-body h3 {
+      font-size: 1.15rem;
+      font-weight: 600;
+      color: #22d3ee;
+      margin-top: 1rem;
+      margin-bottom: 0.35rem;
+    }
+    .markdown-body p {
+      margin-bottom: 0.85rem;
+      line-height: 1.65;
+      color: #d4d4d8;
+    }
+    .markdown-body ul {
+      list-style-type: disc;
+      padding-left: 1.4rem;
+      margin-bottom: 0.85rem;
+      color: #d4d4d8;
+    }
+    .markdown-body ol {
+      list-style-type: decimal;
+      padding-left: 1.4rem;
+      margin-bottom: 0.85rem;
+      color: #d4d4d8;
+    }
+    .markdown-body li {
+      margin-bottom: 0.25rem;
+    }
+    .markdown-body blockquote {
+      border-left: 2px solid #06b6d4;
+      padding-left: 1rem;
+      font-style: italic;
+      color: #a1a1aa;
+      margin: 0.85rem 0;
+      background: rgba(6, 182, 212, 0.03);
+      padding-top: 0.25rem;
+      padding-bottom: 0.25rem;
+      border-radius: 0 4px 4px 0;
+    }
+    .markdown-body code:not(pre code) {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.875em;
+      background: rgba(39, 39, 42, 0.8);
+      color: #2dd4bf;
+      padding: 0.15rem 0.35rem;
+      border-radius: 4px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    .markdown-body pre {
+      background: #09090b;
+      border: 1px solid rgba(63, 63, 70, 0.4);
+      border-radius: 8px;
+      padding: 1rem;
+      overflow-x: auto;
+      margin: 0.85rem 0;
+    }
+    .markdown-body pre code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      color: #a5f3fc;
+      line-height: 1.5;
+    }
+    .markdown-body hr {
+      border-color: rgba(63, 63, 70, 0.3);
+      margin: 1.5rem 0;
+    }
+  </style>
+</head>
+<body class="h-screen w-screen overflow-hidden bg-zinc-950 text-zinc-300 font-sans flex flex-col antialiased selection:bg-cyan-500/25 selection:text-cyan-200">
+
+  <!-- ======================================================== -->
+  <!-- 1. HEADER (Top bar)                                      -->
+  <!-- ======================================================== -->
+  <header class="h-14 border-b border-zinc-900 bg-zinc-950/90 backdrop-blur-md px-5 flex items-center justify-between flex-shrink-0 z-30 select-none">
+    <!-- Left side: Logo -->
+    <div class="flex items-center gap-3">
+      <div class="flex items-center space-x-2">
+        <!-- Cybernetic brand icon -->
+        <div class="w-7 h-7 rounded-lg bg-zinc-900 border border-cyan-500/30 flex items-center justify-center shadow-[0_0_12px_rgba(6,182,212,0.15)]">
+          <i data-lucide="layers" class="w-4 h-4 text-cyan-400"></i>
+        </div>
+        <div class="tracking-tight text-base flex items-baseline gap-1.5">
+          <span class="font-bold text-cyan-500 tracking-tight">MotaBuild</span>
+          <span class="font-medium text-zinc-400 text-sm">Labs</span>
+        </div>
+      </div>
+      <span class="text-zinc-700 text-xs px-2 py-0.5 rounded border border-zinc-800/80 font-mono hidden md:inline-block">v0.9.4-alpha</span>
+    </div>
+
+    <!-- Center: File Title / Room Info -->
+    <div class="hidden sm:flex items-center gap-2 text-xs font-mono text-zinc-400 bg-zinc-900/60 px-3 py-1.5 rounded-full border border-zinc-800/60">
+      <i data-lucide="file-code-2" class="w-3.5 h-3.5 text-cyan-400"></i>
+      <span class="text-zinc-200 font-medium">RFC-409-distributed-consensus.md</span>
+      <span class="text-zinc-600">|</span>
+      <span class="text-zinc-500 flex items-center gap-1">
+        <i data-lucide="users" class="w-3 h-3"></i> 3 active peers
+      </span>
+    </div>
+
+    <!-- Right side: Connection Status -->
+    <div class="flex items-center gap-3">
+      <div class="flex items-center gap-2 bg-zinc-900/80 border border-zinc-800/80 px-3 py-1.2 rounded-full py-1 text-xs shadow-sm">
+        <span class="relative flex h-2 w-2">
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+          <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+        </span>
+        <span class="font-mono text-xs text-zinc-300 font-medium tracking-tight">Connected (Mock-WS)</span>
+      </div>
+
+      <!-- Quick Action Buttons -->
+      <div class="flex items-center gap-1 pl-2 border-l border-zinc-800/70">
+        <button id="copyMdBtn" title="Copy Raw Markdown" class="p-1.5 text-zinc-400 hover:text-cyan-400 hover:bg-zinc-900 rounded-md transition-all duration-150">
+          <i data-lucide="copy" class="w-4 h-4"></i>
+        </button>
+        <button id="clearBtn" title="Clear Editor" class="p-1.5 text-zinc-400 hover:text-rose-400 hover:bg-zinc-900 rounded-md transition-all duration-150">
+          <i data-lucide="trash-2" class="w-4 h-4"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ======================================================== -->
+  <!-- 2. MAIN WORKSPACE (Flex Row)                             -->
+  <!-- ======================================================== -->
+  <main class="flex-1 flex flex-col md:flex-row min-h-0 relative overflow-hidden bg-zinc-950">
+
+    <!-- LEFT PANE: Editor -->
+    <section class="flex-1 flex flex-col min-w-0 border-b md:border-b-0 md:border-r border-zinc-900/90 bg-zinc-900/40 relative">
+      <!-- Editor Subheader / Controls -->
+      <div class="h-9 px-4 border-b border-zinc-900/80 bg-zinc-950/40 flex items-center justify-between text-xs text-zinc-400 font-mono select-none">
+        <div class="flex items-center gap-2">
+          <span class="inline-block w-2 h-2 rounded-full bg-cyan-500/80"></span>
+          <span class="uppercase tracking-wider font-semibold text-zinc-300">Editor</span>
+          <span class="text-zinc-600">/</span>
+          <span class="text-zinc-500">Markdown Source</span>
+        </div>
+        <div class="flex items-center gap-3 text-zinc-500">
+          <span id="charCount">0 chars</span>
+          <span>•</span>
+          <span id="wordCount">0 words</span>
+          <span>•</span>
+          <span class="text-cyan-500/90 font-medium">UTF-8</span>
+        </div>
+      </div>
+
+      <!-- Textarea Container -->
+      <div class="flex-1 relative p-3">
+        <textarea
+          id="editor"
+          spellcheck="false"
+          placeholder="Start typing markdown here..."
+          class="w-full h-full resize-none bg-zinc-900/60 text-zinc-200 placeholder-zinc-600 font-mono text-sm leading-relaxed p-4 rounded-lg border border-zinc-800/40 focus:outline-none focus:border-cyan-500/40 focus:ring-1 focus:ring-cyan-500/20 transition-all shadow-inner overflow-y-auto"
+        ># MotaBuild Labs // Protocol v0.9
+
+Welcome to the **Real-Time Collaborative Markdown Space**.
+Architected for high-frequency low-latency documentation with peer sync.
+
+### Key Capabilities
+- **Sub-millisecond CRDT Delta Broadcasts**
+- Zero-overhead headless parsing with instant rendering
+- Dual-channel WebSocket synchronization engine
+
+### Code Specification
+```typescript
+interface PeerState {
+  peerId: string;
+  cursorPos: [number, number];
+  vectorClock: Record<string, number>;
+}
+```
+
+> "Simplicity is prerequisite for reliability." — Edsger W. Dijkstra
+
+Try typing below to trigger mock telemetry socket deltas in the console panel!
+</textarea>
+      </div>
+    </section>
+
+    <!-- RIGHT PANE: Live Preview -->
+    <section class="flex-1 flex flex-col min-w-0 bg-zinc-900/20 relative">
+      <!-- Preview Subheader -->
+      <div class="h-9 px-4 border-b border-zinc-900/80 bg-zinc-950/40 flex items-center justify-between text-xs text-zinc-400 font-mono select-none">
+        <div class="flex items-center gap-2">
+          <span class="inline-block w-2 h-2 rounded-full bg-teal-400/80"></span>
+          <span class="uppercase tracking-wider font-semibold text-zinc-300">Live Preview</span>
+          <span class="text-zinc-600">/</span>
+          <span class="text-zinc-500">Formatted DOM</span>
+        </div>
+        <div class="flex items-center gap-2 text-zinc-500">
+          <span class="flex items-center gap-1.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-teal-400"></span>
+            Real-time sync
+          </span>
+        </div>
+      </div>
+
+      <!-- Rendered Content Output -->
+      <div class="flex-1 p-3 overflow-hidden">
+        <div
+          id="preview"
+          class="w-full h-full p-6 rounded-lg bg-zinc-800/25 border border-zinc-800/40 overflow-y-auto markdown-body shadow-sm"
+        >
+          <!-- Live markdown output inserted via JS -->
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ======================================================== -->
+  <!-- 3. THE "FLEX" TERMINAL (Bottom Panel, fixed height ~200px) -->
+  <!-- ======================================================== -->
+  <section class="h-[210px] bg-black border-t border-zinc-900 flex flex-col flex-shrink-0 z-20 terminal-glow">
+
+    <!-- Terminal Header Bar -->
+    <div class="h-8 px-4 bg-zinc-950 border-b border-zinc-900 flex items-center justify-between text-xs font-mono select-none">
+      <div class="flex items-center gap-2.5">
+        <!-- Terminal Window Dots -->
+        <div class="flex items-center gap-1.5">
+          <span class="w-2.5 h-2.5 rounded-full bg-zinc-800 border border-zinc-700/60 inline-block"></span>
+          <span class="w-2.5 h-2.5 rounded-full bg-zinc-800 border border-zinc-700/60 inline-block"></span>
+          <span class="w-2.5 h-2.5 rounded-full bg-zinc-800 border border-zinc-700/60 inline-block"></span>
+        </div>
+        <span class="text-zinc-600">|</span>
+        <div class="flex items-center gap-2 text-zinc-300">
+          <i data-lucide="terminal" class="w-3.5 h-3.5 text-cyan-400"></i>
+          <span class="font-semibold text-zinc-200 tracking-tight">Live Server Telemetry &amp; Socket Logs</span>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-4 text-zinc-500 text-[11px]">
+        <div class="flex items-center gap-2">
+          <span class="text-zinc-600">CHANNEL:</span>
+          <span class="text-cyan-400 font-semibold">wss://motabuild.net/v1/sync</span>
+        </div>
+        <button id="clearLogsBtn" class="text-zinc-500 hover:text-zinc-300 transition-colors flex items-center gap-1">
+          <i data-lucide="eraser" class="w-3 h-3"></i> Clear
+        </button>
+      </div>
+    </div>
+
+    <!-- Terminal Log Stream -->
+    <div
+      id="terminalBody"
+      class="flex-1 p-3.5 overflow-y-auto font-mono text-xs leading-relaxed space-y-1 bg-black text-zinc-300"
+    >
+      <!-- Initial Mock Logs -->
+      <div class="text-zinc-600 select-none pb-1 font-sans text-[11px]">--- SESSION INITIATED [TLS 1.3 | Curve25519 | HTTP/2 MUX] ---</div>
+      <div class="text-cyan-400 flex items-start gap-2">
+        <span class="text-zinc-600 select-none">[00:00:01]</span>
+        <span><strong class="text-cyan-300">[SYS]</strong> Initializing MotaBuild Labs core sync pipeline...</span>
+      </div>
+      <div class="text-teal-300 flex items-start gap-2">
+        <span class="text-zinc-600 select-none">[00:00:02]</span>
+        <span><strong class="text-teal-400">[WS]</strong> Connected to Room 123 :: session token <span class="text-zinc-400">#98fa-d01</span></span>
+      </div>
+      <div class="text-cyan-400 flex items-start gap-2">
+        <span class="text-zinc-600 select-none">[00:00:03]</span>
+        <span><strong class="text-cyan-300">[WS]</strong> Broadcast Delta (14 bytes) -&gt; Latency: 12ms</span>
+      </div>
+      <div class="text-teal-300 flex items-start gap-2">
+        <span class="text-zinc-600 select-none">[00:00:04]</span>
+        <span><strong class="text-teal-400">[WS]</strong> Peer #45 joined [region: us-east-crdt]</span>
+      </div>
+    </div>
+
+    <!-- Terminal Status Footer -->
+    <div class="h-6 px-4 bg-zinc-950/80 border-t border-zinc-900/60 flex items-center justify-between text-[11px] font-mono text-zinc-500 select-none">
+      <div class="flex items-center gap-3">
+        <span class="flex items-center gap-1.5">
+          <span class="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse"></span>
+          <span>INGESTING</span>
+        </span>
+        <span>BUFFER: <span class="text-zinc-300">0.02%</span></span>
+      </div>
+      <div class="flex items-center gap-3 text-zinc-500">
+        <span>PACKET_LOSS: <span class="text-emerald-400">0.00%</span></span>
+        <span>AVG_LATENCY: <span id="avgLatency" class="text-cyan-400 font-medium">8ms</span></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================== -->
+  <!-- JavaScript Interactions                                  -->
+  <!-- ======================================================== -->
+  <script>
+    // Initialize Lucide icons
+    lucide.createIcons();
+
+    const editor = document.getElementById('editor');
+    const preview = document.getElementById('preview');
+    const terminalBody = document.getElementById('terminalBody');
+    const charCount = document.getElementById('charCount');
+    const wordCount = document.getElementById('wordCount');
+    const avgLatency = document.getElementById('avgLatency');
+    const clearLogsBtn = document.getElementById('clearLogsBtn');
+    const clearBtn = document.getElementById('clearBtn');
+    const copyMdBtn = document.getElementById('copyMdBtn');
+
+    // Telemetry log alternating color state
+    let logCounter = 0;
+    const logColors = ['text-cyan-400', 'text-teal-300'];
+
+    // Format current timestamp HH:MM:SS
+    function getTimestamp() {
+      const now = new Date();
+      return now.toTimeString().split(' ')[0];
+    }
+
+    // Lightweight markdown parser for instant live preview without external heavyweight library
+    function parseMarkdown(md) {
+      if (!md) return '<p class="text-zinc-600 italic">No content to preview...</p>';
+
+      let html = md
+        // Escape HTML
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        // Code blocks ```code```
+        .replace(/```([a-z]*)\n([\s\S]*?)```/g, function(match, lang, code) {
+          return `<pre><code>${code.trim()}</code></pre>`;
+        })
+        // Inline code `code`
+        .replace(/`([^`]+)`/g, '<code>$1</code>')
+        // Headings
+        .replace(/^### (.*$)/gim, '<h3>$1</h3>')
+        .replace(/^## (.*$)/gim, '<h2>$1</h2>')
+        .replace(/^# (.*$)/gim, '<h1>$1</h1>')
+        // Bold & Italic
+        .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*([^*]+)\*/g, '<em>$1</em>')
+        // Blockquotes
+        .replace(/^\> (.*$)/gim, '<blockquote>$1</blockquote>')
+        // Horizontal Rules
+        .replace(/^(---|\*\*\*|___)$/gim, '<hr/>')
+        // Unordered lists
+        .replace(/^\s*-\s+(.*$)/gim, '<ul><li>$1</li></ul>')
+        // Fix adjacent ul tags
+        .replace(/<\/ul>\s*<ul>/g, '')
+        // Paragraphs (lines separated by double newlines)
+        .split(/\n{2,}/)
+        .map(chunk => {
+          chunk = chunk.trim();
+          if (!chunk) return '';
+          if (/^<(h[1-6]|ul|ol|pre|blockquote|hr)/.test(chunk)) {
+            return chunk;
+          }
+          return `<p>${chunk.replace(/\n/g, '<br/>')}</p>`;
+        })
+        .join('');
+
+      return html;
+    }
+
+    // Update Live Preview & Stats
+    function updateEditorAndPreview() {
+      const text = editor.value;
+
+      // Update preview DOM
+      preview.innerHTML = parseMarkdown(text);
+
+      // Update counters
+      const chars = text.length;
+      const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+      charCount.textContent = `${chars} chars`;
+      wordCount.textContent = `${words} words`;
+    }
+
+    // Append a mock WebSocket log line to the terminal
+    let debounceTimer = null;
+    function appendSocketLog() {
+      const latency = Math.floor(Math.random() * 9) + 3; // 3ms - 11ms
+      const bytes = Math.floor(Math.random() * 45) + 12; // 12b - 56b
+      const peerId = Math.floor(Math.random() * 80) + 10;
+
+      avgLatency.textContent = `${latency}ms`;
+
+      // Cycle alternating colors between cyan and light teal/green
+      const colorClass = logColors[logCounter % logColors.length];
+      logCounter++;
+
+      const logActions = [
+        `[WS] Syncing delta (${bytes} bytes) -&gt; Latency: ${latency}ms`,
+        `[WS] Broadcast op: UPDATE_TEXT [diff: +${Math.floor(bytes / 3)} ops] Latency: ${latency}ms`,
+        `[WS] Ack from Peer #${peerId} in ${latency}ms (stateVector synced)`,
+        `[WS] VectorClock updated: {peer:${peerId}, epoch:${Date.now().toString().slice(-4)}}`
+      ];
+
+      const chosenAction = logActions[Math.floor(Math.random() * logActions.length)];
+
+      const logItem = document.createElement('div');
+      logItem.className = `${colorClass} flex items-start gap-2`;
+      logItem.innerHTML = `
+        <span class="text-zinc-600 select-none">[${getTimestamp()}]</span>
+        <span>${chosenAction}</span>
+      `;
+
+      terminalBody.appendChild(logItem);
+
+      // Auto-scroll terminal to bottom
+      terminalBody.scrollTop = terminalBody.scrollHeight;
+    }
+
+    // Event Listeners
+    editor.addEventListener('input', () => {
+      updateEditorAndPreview();
+
+      // Emit mock telemetry socket log throttled on typing
+      if (!debounceTimer) {
+        appendSocketLog();
+        debounceTimer = setTimeout(() => {
+          debounceTimer = null;
+        }, 120);
+      }
+    });
+
+    // Clear logs button
+    clearLogsBtn.addEventListener('click', () => {
+      terminalBody.innerHTML = `
+        <div class="text-zinc-600 select-none pb-1 font-sans text-[11px]">--- LOGS CLEARED AT [${getTimestamp()}] ---</div>
+      `;
+      logCounter = 0;
+    });
+
+    // Clear editor button
+    clearBtn.addEventListener('click', () => {
+      editor.value = '';
+      updateEditorAndPreview();
+      editor.focus();
+
+      const logItem = document.createElement('div');
+      logItem.className = 'text-rose-400 flex items-start gap-2';
+      logItem.innerHTML = `
+        <span class="text-zinc-600 select-none">[${getTimestamp()}]</span>
+        <span><strong class="text-rose-300">[ACTION]</strong> Editor buffer flushed by client</span>
+      `;
+      terminalBody.appendChild(logItem);
+      terminalBody.scrollTop = terminalBody.scrollHeight;
+    });
+
+    // Copy raw markdown button
+    copyMdBtn.addEventListener('click', () => {
+      navigator.clipboard.writeText(editor.value).then(() => {
+        const originalIcon = copyMdBtn.innerHTML;
+        copyMdBtn.innerHTML = '<i data-lucide="check" class="w-4 h-4 text-emerald-400"></i>';
+        lucide.createIcons();
+
+        const logItem = document.createElement('div');
+        logItem.className = 'text-emerald-400 flex items-start gap-2';
+        logItem.innerHTML = `
+          <span class="text-zinc-600 select-none">[${getTimestamp()}]</span>
+          <span><strong class="text-emerald-300">[CLIPBOARD]</strong> Document markdown copied to local clipboard</span>
+        `;
+        terminalBody.appendChild(logItem);
+        terminalBody.scrollTop = terminalBody.scrollHeight;
+
+        setTimeout(() => {
+          copyMdBtn.innerHTML = originalIcon;
+          lucide.createIcons();
+        }, 1800);
+      });
+    });
+
+    // Handle tab key in editor for nice indentation
+    editor.addEventListener('keydown', (e) => {
+      if (e.key === 'Tab') {
+        e.preventDefault();
+        const start = editor.selectionStart;
+        const end = editor.selectionEnd;
+        editor.value = editor.value.substring(0, start) + '  ' + editor.value.substring(end);
+        editor.selectionStart = editor.selectionEnd = start + 2;
+        updateEditorAndPreview();
+      }
+    });
+
+    // Initial render
+    updateEditorAndPreview();
+  </script>
+</body>
+</html>
