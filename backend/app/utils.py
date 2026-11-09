@@ -1,10 +1,11 @@
 import logging
+import smtplib
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
+from email.message import EmailMessage
 from pathlib import Path
 from typing import Any
 
-import emails
 import jwt
 from jinja2 import Template
 from jwt.exceptions import InvalidTokenError
@@ -38,22 +39,20 @@ def send_email(
 ) -> None:
     assert settings.emails_enabled, "no provided configuration for email variables"
     assert settings.EMAILS_FROM_EMAIL  # For type checker
-    message = emails.message.Message(
-        subject=subject,
-        html=html_content,
-        mail_from=(settings.EMAILS_FROM_NAME, settings.EMAILS_FROM_EMAIL),
-    )
-    smtp_options = {"host": settings.SMTP_HOST, "port": settings.SMTP_PORT}
-    if settings.SMTP_TLS:
-        smtp_options["tls"] = True
-    elif settings.SMTP_SSL:
-        smtp_options["ssl"] = True
-    if settings.SMTP_USER:
-        smtp_options["user"] = settings.SMTP_USER
-    if settings.SMTP_PASSWORD:
-        smtp_options["password"] = settings.SMTP_PASSWORD
-    response = message.send(to=email_to, smtp=smtp_options)
-    logger.info(f"send email result: {response}")
+    message = EmailMessage()
+    message["Subject"] = subject
+    message["From"] = f"{settings.EMAILS_FROM_NAME} <{settings.EMAILS_FROM_EMAIL}>"
+    message["To"] = email_to
+    message.set_content(html_content, subtype="html")
+
+    smtp_class = smtplib.SMTP_SSL if settings.SMTP_SSL else smtplib.SMTP
+    with smtp_class(settings.SMTP_HOST, settings.SMTP_PORT) as smtp:
+        if settings.SMTP_TLS and not settings.SMTP_SSL:
+            smtp.starttls()
+        if settings.SMTP_USER and settings.SMTP_PASSWORD:
+            smtp.login(settings.SMTP_USER, settings.SMTP_PASSWORD)
+        smtp.send_message(message)
+    logger.info("send email result: sent to %s", email_to)
 
 
 def generate_test_email(email_to: str) -> EmailData:
