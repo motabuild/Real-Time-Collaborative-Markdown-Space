@@ -13,7 +13,10 @@ import { Toaster } from "./components/ui/sonner"
 import "./index.css"
 import { routeTree } from "./routeTree.gen"
 
-OpenAPI.BASE = import.meta.env.VITE_API_URL
+// ``VITE_API_URL`` is the origin prefix only; the generated client already
+// appends "/api/v1", so an empty value yields same-origin "/api/v1/..." URLs
+// and therefore no CORS preflight in production.
+OpenAPI.BASE = (import.meta.env.VITE_API_URL || "").replace(/\/$/, "")
 OpenAPI.TOKEN = async () => {
   return localStorage.getItem("access_token") || ""
 }

@@ -51,23 +51,33 @@ function getTimestamp(): string {
 }
 
 /**
- * Derive the WebSocket base URL from the configured HTTP API URL by swapping
- * the scheme: http -> ws, https -> wss.
+ * Absolute path prefix for the API. ``VITE_API_URL`` is the *origin* prefix
+ * (empty for same-origin, as the generated client already appends "/api/v1"),
+ * so an empty or absolute value both normalize to "/api/v1" here.
+ */
+function getApiPath(): string {
+  const origin = (import.meta.env.VITE_API_URL || "").replace(/\/+$/, "")
+  const path = origin.replace(/^https?:\/\/[^/]+/, "")
+  return path && path !== "/" ? path : "/api/v1"
+}
+
+/**
+ * Derive the WebSocket base URL from the configured HTTP API URL. With no
+ * origin configured, the page host and protocol are reused so production
+ * traffic stays on the same origin as the REST API.
  */
 function getWsBaseUrl(): string {
-  const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:8000"
-  return apiUrl
-    .replace(/^http(s?):/, (_match: string, secure: string) =>
-      secure ? "wss:" : "ws:",
-    )
-    .replace(/\/$/, "")
+  const origin = (import.meta.env.VITE_API_URL || "").replace(/\/+$/, "")
+  const wsProtocol = window.location.protocol === "https:" ? "wss:" : "ws:"
+  const wsHost = /^https?:\/\//.test(origin)
+    ? origin.replace(/^https?:\/\//, "")
+    : `${window.location.host}${getApiPath()}`
+
+  return `${wsProtocol}//${wsHost}`
 }
 
 function getApiBaseUrl(): string {
-  return (import.meta.env.VITE_API_URL || "http://localhost:8000").replace(
-    /\/$/,
-    "",
-  )
+  return getApiPath()
 }
 
 interface RealTimeEditorProps {
